@@ -11,16 +11,17 @@ public class Main {
 
     public static void main(String[] args) throws Exception {
 
-        Server server = new Server(8081);
+        Server server = new Server(8092);
 
         ServletContextHandler context =
                 new ServletContextHandler(server, "/");
 
        
-        ResourceConfig config = new ResourceConfig();
+        ResourceConfig config = new ResourceConfig()
+        .packages("com.mycompany.clientservercw2");
         config.register(ResourceHello.class);
         config.register(DiscoveryResource.class);
-        config.register(SensorRoomResource.class);
+        config.register(SensorRoomResource.class); 
 
         ServletHolder jerseyServlet =
                 new ServletHolder(new ServletContainer(config));
@@ -29,7 +30,7 @@ public class Main {
 
         server.start();
 
-        System.out.println("Server started at http://localhost:8081/api/v1/");
+        System.out.println("Server started at http://localhost:8092/api/v1/");
 
         server.join();
     }

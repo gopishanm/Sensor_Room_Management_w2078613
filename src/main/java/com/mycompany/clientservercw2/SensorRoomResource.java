@@ -12,41 +12,29 @@ import java.util.concurrent.ConcurrentHashMap;
 @Consumes(MediaType.APPLICATION_JSON)
 public class SensorRoomResource {
 
-    public static Map<Integer, Map<String, Object>> rooms;
+    public static Map<Integer, Map<String, Object>> rooms = new ConcurrentHashMap<>();
     private static int idCounter = 1;
 
     @GET
-public Collection<Map<String, Object>> getAllSensors(@QueryParam("type") String type) {
-
-    if (type == null) {
-        return sensors.values();
+    public Collection<Map<String, Object>> getAllRooms() {
+        return rooms.values();
     }
-
-    List<Map<String, Object>> filtered = new ArrayList<>();
-
-    for (Map<String, Object> sensor : sensors.values()) {
-        if (type.equalsIgnoreCase((String) sensor.get("type"))) {
-            filtered.add(sensor);
-        }
-    }
-
-    return filtered;
-}
 
     @POST
     public Response createRoom(Map<String, Object> room) {
-    int id = idCounter++;
-    room.put("id", id);
+        int id = idCounter++;
+        room.put("id", id);
 
-   
-    room.put("sensors", new ArrayList<>());
+        // initialize sensors list
+        room.put("sensors", new ArrayList<>());
 
-    rooms.put(id, room);
+        rooms.put(id, room);
 
-    return Response.status(Response.Status.CREATED)
-            .entity(room)
-            .build();
+        return Response.status(Response.Status.CREATED)
+                .entity(room)
+                .build();
     }
+
     @GET
     @Path("/{id}")
     public Response getRoom(@PathParam("id") int id) {
@@ -61,30 +49,27 @@ public Collection<Map<String, Object>> getAllSensors(@QueryParam("type") String 
         return Response.ok(room).build();
     }
 
+    @DELETE
+    @Path("/{id}")
+    public Response deleteRoom(@PathParam("id") int id) {
 
-@DELETE
-@Path("/{id}")
-public Response deleteRoom(@PathParam("id") int id) {
+        Map<String, Object> room = rooms.get(id);
 
-    Map<String, Object> room = rooms.get(id);
+        if (room == null) {
+            return Response.status(Response.Status.NOT_FOUND)
+                    .entity("Room not found")
+                    .build();
+        }
 
-    if (room == null) {
-        return Response.status(Response.Status.NOT_FOUND)
-                .entity("Room not found")
-                .build();
+        List<?> sensors = (List<?>) room.get("sensors");
+
+        if (sensors != null && !sensors.isEmpty()) {
+            // ? Assignment requirement: use 409
+            throw new RoomNotEmptyException("Room has active sensors");
+        }
+
+        rooms.remove(id);
+
+        return Response.ok("Room deleted successfully").build();
     }
-
-  
-    List<?> sensors = (List<?>) room.get("sensors");
-
-    if (sensors != null && !sensors.isEmpty()) {
-        return Response.status(Response.Status.BAD_REQUEST)
-                .entity("Cannot delete room: sensors still assigned")
-                .build();
-    }
-
-    rooms.remove(id);
-
-    return Response.ok("Room deleted successfully").build();
-}
 }

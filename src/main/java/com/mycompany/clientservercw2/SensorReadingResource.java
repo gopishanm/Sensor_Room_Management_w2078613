@@ -18,33 +18,36 @@ public class SensorReadingResource {
         this.sensorId = sensorId;
     }
 
-    
     @GET
     public List<Map<String, Object>> getReadings() {
         return readings.getOrDefault(sensorId, new ArrayList<>());
     }
-    
-Map<String, Object> sensor = SensorResource.sensors.get(sensorId);
 
-if ("MAINTENANCE".equals(sensor.get("status"))) {
-    throw new SensorUnavailableException("Sensor is under maintenance");
-}
+    @POST
+    public Response addReading(Map<String, Object> reading) {
 
-  @POST
-public Response addReading(Map<String, Object> reading) {
+        // ? Check sensor exists
+        Map<String, Object> sensor = SensorResource.sensors.get(sensorId);
 
-    readings.putIfAbsent(sensorId, new ArrayList<>());
-    readings.get(sensorId).add(reading);
+        if (sensor == null) {
+            throw new NotFoundException("Sensor not found");
+        }
 
-    
-    Map<String, Object> sensor = SensorResource.sensors.get(sensorId);
+      
+        if ("MAINTENANCE".equals(sensor.get("status"))) {
+            throw new SensorUnavailableException("Sensor is under maintenance");
+        }
 
-    if (sensor != null && reading.get("value") != null) {
-        sensor.put("currentValue", reading.get("value"));
+        readings.putIfAbsent(sensorId, new ArrayList<>());
+        readings.get(sensorId).add(reading);
+
+      
+        if (reading.get("value") != null) {
+            sensor.put("currentValue", reading.get("value"));
+        }
+
+        return Response.status(Response.Status.CREATED)
+                .entity(reading)
+                .build();
     }
-
-    return Response.status(Response.Status.CREATED)
-            .entity(reading)
-            .build();
-}
 }
