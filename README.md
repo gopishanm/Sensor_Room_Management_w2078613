@@ -8,34 +8,38 @@ The project is a RESTful API built using JAX-RS (Jersey) and Jetty. It handles:
 The API is designed using REST concepts, with appropriate HTTP methods, response codes, and JSON format in replies. More advanced options like error handling, filtering, and logging are integrated for better functionality and monitoring capabilities.
 
 How to build instructions:
-1.Clone the repository
-2.Clean and build
-3.Run server 
-4.Open: http://localhost:8081/api/v1
+
+1. Duplicate/clone the repository
+
+2. Clean and build
+
+3. Run the server 
+
+4. Open: http://localhost:8092/api/v1
 
 Curl Commands:
 
 1.Create a room:
 
-curl -X POST http://localhost:8081/api/v1/rooms \
+curl -X POST http://localhost:8092/api/v1/rooms \
 -H "Content-Type: application/json" \
 -d '{"name": "Room A"}'
 
 2. Get all rooms
-curl http://localhost:8081/api/v1/rooms
+curl http://localhost:8092/api/v1/rooms
 
 3. Create a Sensor (linked to roomId = 1)
-curl -X POST http://localhost:8081/api/v1/sensors \
+curl -X POST http://localhost:8092/api/v1/sensors \
 -H "Content-Type: application/json" \
 -d '{"type": "temperature", "roomId": 1}'
 
 4. Add a Reading to Sensor 1
-curl -X POST http://localhost:8081/api/v1/sensors/1/readings \
+curl -X POST http://localhost:8092/api/v1/sensors/1/readings \
 -H "Content-Type: application/json" \
 -d '{"value": 23.5}'
 
 5. Get Sensor Readings
-curl http://localhost:8081/api/v1/sensors/1/readings
+curl http://localhost:8092/api/v1/sensors/1/readings
 
 Report:
 
